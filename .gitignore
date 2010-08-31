@@ -1,0 +1,7 @@
+*.log
+*.sqlite
+*.exe
+*.bat
+# ignore host specific configuration file
+config/config.*.php
+ext/db2rss/config.ini

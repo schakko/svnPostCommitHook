@@ -1,0 +1,15 @@
+[default]
+
+[127.0.0.1 : default]
+; directory to svnPostCommitHook
+svnPostCommitHook.dir=<path to svnPostCommitHook directory>
+
+; repositoryUrl will be injected into the templates.
+; could be although svn://your-subversion-server.local/%repositoryName%
+repositoryUrl=https://your-subversion-server.local/%repositoryName%
+
+; path to SQLite database in which the commit information are stored
+pathToSqliteDatabase=<path to>\svn2db.sqlite
+
+[localhost : 127.0.0.1]
+; inherit all settings from 127.0.0.1

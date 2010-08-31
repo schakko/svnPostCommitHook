@@ -1,0 +1,77 @@
+svnPostCommitHook can be plugged into the SVN post-commit-hook phase for executing special tasks.
+I know that there are other frameworks by now but while I was writing the code for svnPostCommitHook 
+there were no tool available.
+
+Concept
+=======
+The hook framework consists of three parts:
+ * a batch or shell file which has to be placed into your repository/hooks directory
+ * svnPostCommitHook.php which takes the input from the batch/shell file and delegates to other hooks
+ * 0..n hooks which can be executed by svnPostCommitHook.php
+
+Requirements
+=======
+You need PHP 5.x, an enabled pdo_sqlite extension and Zend Framework >= 1.5.
+If you want to use the db2rss extension, you need a webserver too.
+
+Installation
+=======
+Check your php.ini/php-cli.ini for 
+	extension=pdo_sqlite.[dll|so]
+	include_path="<path to Zend Framework>"
+
+Edit the file ./post-commit.bat.sample so that the path to svnPostCommitHook.php is valid.
+Copy the ./post-commit.bat.sample to every repository/hooks directory. I know that this is more than
+redundancy but SVN does not currently allow the definition of one global hook for every repository.
+
+Configuration
+=======
+svnPostCommitHook loads at first the file config/used.php which then checks if a config file named
+config/config.$SERVER_NAME.php. If such a file does not exist, it will fall back to config/config.php.
+I suggest you create a new config file named config/config.<configname>.php
+
+Open the config file of your wish and edit the preferences.
+All propeties in $arrEnvironment are used for the global svnPostCommitHook framework
+Most of the settings should be self-explanatory.
+Take care of $arrEnvironment['hooks'] - this settings defines the hooks which are used on a new commit.
+Every hook must be located below ./hook/<hookname>/<hookname>.php.
+The hook 'svn2db' takes the input of every commit and stores the most important information in a 
+SQLite database.
+If you want to specify the location of the SQLite database, the hook entry has to be changed to
+
+$arrEnvironment['hooks'] = 
+	array('svn2db' => array('pathToSqliteDatabase' => '<your path to svn2db.sqlite>')); 
+
+The settings for $arrDefaultRepository are applied for all repositories.
+Every repository can have a specific configuration. If you want so, you must add
+$arrRepositories['<your specific repository name in lower case>'] = $myConfig;
+in the lower section of the configuration file.
+
+db2rss
+=======
+db2rss can be found below ext/db2rss. db2rss can be copied somewhere in your Webserver and on 
+calling the db2rss.php in your browser, you will see the complete svn2db database.
+You can subscribe to the Subversion commits by author, by project, by a specific author in a specific
+project or by all projects as Atom or RSS feed. You can change the look of the feed by changing the
+rss.template.php respective atom.template.php.
+There is no security concept available so make sure that the db2rss.php file can only be accessed by
+developers per Deny/All rule, LDAP authentication or something else.
+
+db2rss: Configuration
+=======
+There is just one configuration file named config.ini.sample. db2rss uses the file config.ini, so
+you have to rename the config.ini.sample to config.ini and edit the settings.
+All settings in the configuration file should be self-explanatory as well.
+If you call db2rss.php by DNS name, e.g. http://your-server.local/db2rss.php there must exist a section
+[your-server.local] in config.ini.
+If you call db2rss.php by IP, e.g. http://192.168.0.1/db2rss.php there must exist a section
+[192.168.0.1] in config.ini.
+For using both IP and DNS and reducing redundancy you can inherit IP from DNS:
+[192.168.0.1]
+; settings here...
+[your-server.local : 192.168.0.1]
+; inherits all settings from 192.168.0.1
+
+Note
+=======
+The use of this software is at the user's own risk.

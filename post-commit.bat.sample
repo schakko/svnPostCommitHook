@@ -1,0 +1,1 @@
+c:\programme\php\php.exe -f <path to svnPostCommitHook.php> -- %1 %2
